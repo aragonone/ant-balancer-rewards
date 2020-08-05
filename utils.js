@@ -84,7 +84,7 @@ async function fetchAllPools(block) {
 
     for (i in poolResults) {
         let pool = poolResults[i];
-        pool.shareHolders = pool.shares.flatMap((a) => a.userAddress.id);
+        pool.shareHolders = pool.shares.map((a) => a.userAddress.id);
         if (pool.shareHolders.length == 1000) {
             let paginateShares = true;
             let shareSkip = 0;
@@ -116,7 +116,7 @@ async function fetchAllPools(block) {
 
                 let { data } = await response.json();
 
-                let newShareHolders = data.pools[0].shares.flatMap(
+                let newShareHolders = data.pools[0].shares.map(
                     (a) => a.userAddress.id
                 );
 
@@ -161,7 +161,7 @@ async function fetchWhitelist() {
     let whitelistResponse = await response.json();
     const whitelist = whitelistResponse.mainnet.tokens
         .slice(1)
-        .flatMap((a) => a.address);
+        .map((a) => a.address);
 
     return whitelist;
 }
