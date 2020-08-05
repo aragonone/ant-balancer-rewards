@@ -14,10 +14,10 @@ function bnum(val) {
     return new BigNumber(val.toString());
 }
 
-const END_BLOCK = argv.endBlock; // Closest block to reference time at end of week
-const START_BLOCK = argv.startBlock; // Closest block to reference time at beginning of week
-const WEEK = argv.week;
-const BLOCKS_PER_SNAPSHOT = 256;
+const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams(
+    argv
+);
+const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
 (async function () {
     let userTotals = {};
@@ -29,7 +29,7 @@ const BLOCKS_PER_SNAPSHOT = 256;
         // Get all files in report directory
 
         for (i = END_BLOCK; i > START_BLOCK; i -= BLOCKS_PER_SNAPSHOT) {
-            const jsonString = fs.readFileSync(`./reports/${WEEK}/${i}.json`);
+            const jsonString = fs.readFileSync(`./reports/${PERIOD}/${i}.json`);
             const report = JSON.parse(jsonString)[1];
 
             Object.keys(report).forEach((user) => {
@@ -71,7 +71,7 @@ const BLOCKS_PER_SNAPSHOT = 256;
                 sortedUserTotal[key] = val;
             });
         console.log(`Total ANT distributed ${antTotal.toString()}`);
-        utils.writeData(sortedUserTotal, `${WEEK}/_totals`);
+        utils.writeData(sortedUserTotal, `${PERIOD}/_totals`);
     } catch (e) {
         console.error('Error reading reports', e);
     }

@@ -192,10 +192,37 @@ async function fetchTokenPrices(allTokens, startTime, endTime, priceProgress) {
     return prices;
 }
 
+function checkArgsAndGetPeriodParams(argv) {
+    if (!argv.period) {
+        console.error(`Usage: node ${argv['$0']} --period 1`);
+        process.exit();
+    }
+
+    const PERIOD = argv.period;
+
+    if (PERIOD >= config.periodBlockDelimiters) {
+        console.error(
+            'Period too big. Adjust config file to set block delimiters for the desired period'
+        );
+        process.exit();
+    }
+
+    if (PERIOD == 0) {
+        console.error('Period can’t be zero');
+        process.exit();
+    }
+
+    const START_BLOCK = config.periodBlockDelimiters[PERIOD - 1]; // Closest block to reference time at beginning of week
+    const END_BLOCK = config.periodBlockDelimiters[PERIOD]; // Closest block to reference time at end of week
+
+    return { PERIOD, START_BLOCK, END_BLOCK };
+}
+
 module.exports = {
     scale,
     writeData,
     fetchAllPools,
     fetchWhitelist,
     fetchTokenPrices,
+    checkArgsAndGetPeriodParams,
 };

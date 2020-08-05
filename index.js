@@ -65,20 +65,13 @@ const uncappedTokens = [
     '0x960b236A07cf122663c4303350609A66A7B288C0', // ANT
 ];
 
-if (!argv.startBlock || !argv.endBlock || !argv.week) {
-    console.log(
-        'Usage: node index.js --week 1 --startBlock 10131642 --endBlock 10156690'
-    );
-    process.exit();
-}
+const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams(
+    argv
+);
+const ANT_PER_PERIOD = config.antPerPeriod;
+const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
-const END_BLOCK = argv.endBlock; // Closest block to reference time at end of week
-const START_BLOCK = argv.startBlock; // Closest block to reference time at beginning of week
-const WEEK = argv.week; // Week for mining distributions. Ex: 1
-
-const ANT_PER_WEEK = bnum(12500); // ~50k per month
-const BLOCKS_PER_SNAPSHOT = 256;
-const ANT_PER_SNAPSHOT = ANT_PER_WEEK.div(
+const ANT_PER_SNAPSHOT = ANT_PER_PERIOD.div(
     bnum(Math.ceil((END_BLOCK - START_BLOCK) / BLOCKS_PER_SNAPSHOT))
 ); // Ceiling because it includes end block
 
@@ -371,18 +364,19 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         cliProgress.Presets.shades_classic
     );
 
-    !fs.existsSync(`./reports/${WEEK}/`) && fs.mkdirSync(`./reports/${WEEK}/`);
+    !fs.existsSync(`./reports/${PERIOD}/`) &&
+        fs.mkdirSync(`./reports/${PERIOD}/`);
 
     let startBlockTimestamp = (await web3.eth.getBlock(START_BLOCK)).timestamp;
     let endBlockTimestamp = (await web3.eth.getBlock(END_BLOCK)).timestamp;
 
     let pools = await utils.fetchAllPools(END_BLOCK);
-    utils.writeData(pools, `/${WEEK}/_pools`);
+    utils.writeData(pools, `/${PERIOD}/_pools`);
 
     let prices = {};
 
-    if (fs.existsSync(`./reports/${WEEK}/_prices.json`)) {
-        const jsonString = fs.readFileSync(`./reports/${WEEK}/_prices.json`);
+    if (fs.existsSync(`./reports/${PERIOD}/_prices.json`)) {
+        const jsonString = fs.readFileSync(`./reports/${PERIOD}/_prices.json`);
         prices = JSON.parse(jsonString);
     } else {
         const whitelist = await utils.fetchWhitelist();
@@ -398,7 +392,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             priceProgress
         );
 
-        let path = `/${WEEK}/_prices`;
+        let path = `/${PERIOD}/_prices`;
         utils.writeData(prices, path);
     }
 
@@ -421,7 +415,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             prices,
             poolProgress
         );
-        let path = `/${WEEK}/${i}`;
+        let path = `/${PERIOD}/${i}`;
         utils.writeData(blockRewards, path);
         blockProgress.increment(BLOCKS_PER_SNAPSHOT);
     }
