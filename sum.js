@@ -22,9 +22,8 @@ const BLOCKS_PER_SNAPSHOT = 256;
 (async function () {
     let userTotals = {};
     let sortedUserTotal = {};
-    let userBal = {};
 
-    let balTotal = bnum(0);
+    let antTotal = bnum(0);
 
     try {
         // Get all files in report directory
@@ -34,7 +33,7 @@ const BLOCKS_PER_SNAPSHOT = 256;
             const report = JSON.parse(jsonString)[1];
 
             Object.keys(report).forEach((user) => {
-                balTotal = balTotal.plus(bnum(report[user]));
+                antTotal = antTotal.plus(bnum(report[user]));
                 if (userTotals[user]) {
                     userTotals[user] = bnum(userTotals[user])
                         .plus(bnum(report[user]))
@@ -71,7 +70,7 @@ const BLOCKS_PER_SNAPSHOT = 256;
             .forEach(([key, val]) => {
                 sortedUserTotal[key] = val;
             });
-        console.log(`Total BAL distributed ${balTotal.toString()}`);
+        console.log(`Total ANT distributed ${antTotal.toString()}`);
         utils.writeData(sortedUserTotal, `${WEEK}/_totals`);
     } catch (e) {
         console.error('Error reading reports', e);

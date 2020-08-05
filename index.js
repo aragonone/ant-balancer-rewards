@@ -77,9 +77,9 @@ const END_BLOCK = argv.endBlock; // Closest block to reference time at end of we
 const START_BLOCK = argv.startBlock; // Closest block to reference time at beginning of week
 const WEEK = argv.week; // Week for mining distributions. Ex: 1
 
-const BAL_PER_WEEK = bnum(145000);
+const ANT_PER_WEEK = bnum(12500); // ~50k per month
 const BLOCKS_PER_SNAPSHOT = 256;
-const BAL_PER_SNAPSHOT = BAL_PER_WEEK.div(
+const ANT_PER_SNAPSHOT = ANT_PER_WEEK.div(
     bnum(Math.ceil((END_BLOCK - START_BLOCK) / BLOCKS_PER_SNAPSHOT))
 ); // Ceiling because it includes end block
 
@@ -350,16 +350,15 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         poolProgress.increment(1);
     }
 
-    // Final iteration across all users to calculate their BAL tokens for this block
-    let userBalReceived = {};
-    let balDistributedDoubleCheck = bnum(0);
+    // Final iteration across all users to calculate their ANT tokens for this block
+    let userAntReceived = {};
     for (const user in userLiquidity) {
-        userBalReceived[user] = bnum(userLiquidity[user])
-            .times(BAL_PER_SNAPSHOT)
+        userAntReceived[user] = bnum(userLiquidity[user])
+            .times(ANT_PER_SNAPSHOT)
             .div(totalBalancerLiquidity);
     }
 
-    return [userPools, userBalReceived, tokenTotalMarketCaps];
+    return [userPools, userAntReceived, tokenTotalMarketCaps];
 }
 
 (async function () {
