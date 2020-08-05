@@ -63,6 +63,7 @@ const uncappedTokens = [
     '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
     '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // WBTC
     '0xba100000625a3754423978a60c9317c58a424e3D', // BAL
+    '0x960b236A07cf122663c4303350609A66A7B288C0', // ANT
 ];
 
 if (!argv.startBlock || !argv.endBlock || !argv.week) {
