@@ -1,4 +1,3 @@
-const Web3 = require('web3');
 const fs = require('fs');
 const utils = require('./utils');
 const BigNumber = require('bignumber.js');
