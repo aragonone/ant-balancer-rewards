@@ -37,9 +37,10 @@ async function fetchAllPools(block) {
     let skip = 0;
     let paginatePools = true;
     while (paginatePools) {
+        const poolsParam = JSON.stringify(config.pools);
         let query = `
             {
-                pools (first: 1000, skip: ${skip}, block: { number: ${block} }) {
+                pools (first: 1000, skip: ${skip}, block: { number: ${block} }, where: { id_in: ${poolsParam}}) {
                     id
                     publicSwap
                     swapFee
