@@ -4,13 +4,12 @@ const cliProgress = require('cli-progress');
 const fs = require('fs');
 const { argv } = require('yargs');
 
+const config = require('./config');
 const utils = require('./utils');
 const poolAbi = require('./abi/BPool.json');
 const tokenAbi = require('./abi/BToken.json');
 
-const web3 = new Web3(
-    new Web3.providers.WebsocketProvider(`ws://localhost:8546`)
-);
+const web3 = new Web3(new Web3.providers.WebsocketProvider(config.node));
 
 BigNumber.config({
     EXPONENTIAL_AT: [-100, 100],

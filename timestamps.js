@@ -2,9 +2,9 @@ require('dotenv').config();
 const Web3 = require('web3');
 const { argv } = require('yargs');
 
-const web3 = new Web3(
-    new Web3.providers.WebsocketProvider(`ws://localhost:8546`)
-);
+const config = require('./config');
+
+const web3 = new Web3(new Web3.providers.WebsocketProvider(config.node));
 
 (async function () {
     for (let i = argv.startBlock; i <= argv.endBlock; i++) {
