@@ -229,6 +229,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         let finalPoolMarketCapFactor = bnum(0);
 
         for (const t of pool.tokens) {
+            let adjustedTokenMarketCap;
             if (
                 !uncappedTokens.includes(t.token) &&
                 bnum(tokenTotalMarketCaps[t.token]).isGreaterThan(
