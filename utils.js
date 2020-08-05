@@ -5,9 +5,9 @@ const fetch = require('isomorphic-fetch');
 const BigNumber = require('bignumber.js');
 const Web3 = require('web3');
 
-const web3 = new Web3(
-    new Web3.providers.WebsocketProvider(`ws://localhost:8546`)
-);
+const config = require('./config');
+
+const web3 = new Web3(new Web3.providers.WebsocketProvider(config.node));
 
 const SUBGRAPH_URL =
     process.env.SUBGRAPH_URL ||
