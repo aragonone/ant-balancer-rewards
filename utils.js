@@ -3,11 +3,11 @@ const fs = require('fs');
 const cliProgress = require('cli-progress');
 const fetch = require('isomorphic-fetch');
 const BigNumber = require('bignumber.js');
-const Web3 = require('web3');
+const ethers = require('ethers');
 
 const config = require('./config');
 
-const web3 = new Web3(new Web3.providers.WebsocketProvider(config.node));
+const provider = new ethers.providers.WebSocketProvider(config.node);
 
 const SUBGRAPH_URL =
     process.env.SUBGRAPH_URL ||
@@ -171,7 +171,7 @@ async function fetchTokenPrices(allTokens, startTime, endTime, priceProgress) {
 
     for (j in allTokens) {
         const address = allTokens[j]
-            ? web3.utils.toChecksumAddress(allTokens[j])
+            ? ethers.utils.getAddress(allTokens[j])
             : null;
         const query = `coins/ethereum/contract/${address}/market_chart/range?&vs_currency=usd&from=${startTime}&to=${endTime}`;
 

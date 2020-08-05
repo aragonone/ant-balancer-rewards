@@ -1,4 +1,4 @@
-const Web3 = require('web3');
+const ethers = require('ethers');
 const BigNumber = require('bignumber.js');
 const cliProgress = require('cli-progress');
 const fs = require('fs');
@@ -9,7 +9,7 @@ const utils = require('./utils');
 const poolAbi = require('./abi/BPool.json');
 const tokenAbi = require('./abi/BToken.json');
 
-const web3 = new Web3(new Web3.providers.WebsocketProvider(config.node));
+const provider = new ethers.providers.WebSocketProvider(config.node);
 
 BigNumber.config({
     EXPONENTIAL_AT: [-100, 100],
@@ -78,7 +78,7 @@ const ANT_PER_SNAPSHOT = ANT_PER_PERIOD.div(
 async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     let totalBalancerLiquidity = bnum(0);
 
-    let block = await web3.eth.getBlock(i);
+    let block = await provider.getBlock(i);
 
     let allPoolData = [];
     let userPools = {};
@@ -99,19 +99,21 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             continue;
         }
 
-        let bPool = new web3.eth.Contract(poolAbi, poolData.poolAddress);
+        let bPool = new ethers.Contract(
+            poolData.poolAddress,
+            poolAbi,
+            provider
+        );
 
-        let publicSwap = await bPool.methods.isPublicSwap().call(undefined, i);
+        let publicSwap = await bPool.isPublicSwap({ blockTag: i });
         if (!publicSwap) {
             continue;
         }
 
-        let currentTokens = await bPool.methods
-            .getCurrentTokens()
-            .call(undefined, i);
+        let currentTokens = await bPool.getCurrentTokens({ blockTag: i });
 
         for (const t of currentTokens) {
-            let token = web3.utils.toChecksumAddress(t);
+            let token = ethers.utils.getAddress(t);
             if (prices[token] !== undefined && prices[token].length > 0) {
                 nTokensHavePrice++;
                 if (nTokensHavePrice > 1) {
@@ -132,18 +134,18 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
 
         for (const t of currentTokens) {
             // Skip token if it doesn't have a price
-            let token = web3.utils.toChecksumAddress(t);
+            let token = ethers.utils.getAddress(t);
             if (prices[token] === undefined || prices[token].length === 0) {
                 continue;
             }
-            let bToken = new web3.eth.Contract(tokenAbi, token);
-            let tokenBalanceWei = await bPool.methods
-                .getBalance(token)
-                .call(undefined, i);
-            let tokenDecimals = await bToken.methods.decimals().call();
-            let normWeight = await bPool.methods
-                .getNormalizedWeight(token)
-                .call(undefined, i);
+            let bToken = new ethers.Contract(token, tokenAbi, provider);
+            let tokenBalanceWei = await bPool.getBalance(token, {
+                blockTag: i,
+            });
+            let tokenDecimals = await bToken.decimals();
+            let normWeight = await bPool.getNormalizedWeight(token, {
+                blockTag: i,
+            });
 
             eligibleTotalWeight = eligibleTotalWeight.plus(
                 utils.scale(normWeight, -18)
@@ -185,7 +187,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
 
         let ratioFactor = getRatioFactor(currentTokens, poolRatios);
 
-        let poolFee = await bPool.methods.getSwapFee().call(undefined, i);
+        let poolFee = await bPool.getSwapFee({ blockTag: i });
         poolFee = utils.scale(poolFee, -16); // -16 = -18 * 100 since it's in percentage terms
         let feeFactor = bnum(getFeeFactor(poolFee));
 
@@ -252,9 +254,9 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             finalPoolMarketCapFactor
         );
 
-        let bPool = new web3.eth.Contract(poolAbi, pool.poolAddress);
+        let bPool = new ethers.Contract(pool.poolAddress, poolAbi, provider);
 
-        let bptSupplyWei = await bPool.methods.totalSupply().call(undefined, i);
+        let bptSupplyWei = await bPool.totalSupply({ blockTag: i });
         let bptSupply = utils.scale(bptSupplyWei, -18);
 
         if (bptSupply.eq(bnum(0))) {
@@ -295,9 +297,9 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             // Shared pool
 
             for (const holder of pool.shareHolders) {
-                let userBalanceWei = await bPool.methods
-                    .balanceOf(holder)
-                    .call(undefined, i);
+                let userBalanceWei = await bPool.balanceOf(holder, {
+                    blockTag: i,
+                });
                 let userBalance = utils.scale(userBalanceWei, -18);
                 let userPoolValue = userBalance
                     .div(bptSupply)
@@ -367,8 +369,8 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     !fs.existsSync(`./reports/${PERIOD}/`) &&
         fs.mkdirSync(`./reports/${PERIOD}/`);
 
-    let startBlockTimestamp = (await web3.eth.getBlock(START_BLOCK)).timestamp;
-    let endBlockTimestamp = (await web3.eth.getBlock(END_BLOCK)).timestamp;
+    let startBlockTimestamp = (await provider.getBlock(START_BLOCK)).timestamp;
+    let endBlockTimestamp = (await provider.getBlock(END_BLOCK)).timestamp;
 
     let pools = await utils.fetchAllPools(END_BLOCK);
     utils.writeData(pools, `/${PERIOD}/_pools`);
