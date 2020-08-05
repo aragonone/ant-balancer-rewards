@@ -159,7 +159,7 @@ async function fetchWhitelist() {
     );
 
     let whitelistResponse = await response.json();
-    whitelist = whitelistResponse.mainnet.tokens
+    const whitelist = whitelistResponse.mainnet.tokens
         .slice(1)
         .flatMap((a) => a.address);
 
