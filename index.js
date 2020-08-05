@@ -56,15 +56,6 @@ function getRatioFactor(tokens, weights) {
     return ratioFactor;
 }
 
-const uncappedTokens = [
-    '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH
-    '0x6B175474E89094C44Da98b954EedeAC495271d0F', // DAI
-    '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC
-    '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // WBTC
-    '0xba100000625a3754423978a60c9317c58a424e3D', // BAL
-    '0x960b236A07cf122663c4303350609A66A7B288C0', // ANT
-];
-
 const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams(
     argv
 );
@@ -226,7 +217,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         for (const t of pool.tokens) {
             let adjustedTokenMarketCap;
             if (
-                !uncappedTokens.includes(t.token) &&
+                !config.uncappedTokens.includes(t.token) &&
                 bnum(tokenTotalMarketCaps[t.token]).isGreaterThan(
                     bnum(10000000)
                 )
@@ -381,7 +372,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         const jsonString = fs.readFileSync(`./reports/${PERIOD}/_prices.json`);
         prices = JSON.parse(jsonString);
     } else {
-        const whitelist = await utils.fetchWhitelist();
+        const whitelist = config.whitelistTokens;
 
         let priceProgress = multibar.create(whitelist.length, 0, {
             task: 'Fetching Prices',
