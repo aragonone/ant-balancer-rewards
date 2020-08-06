@@ -23,6 +23,8 @@ function bnum(val) {
     return new BigNumber(val.toString());
 }
 
+const stringBnum = (val) => val.toString() + '0'.repeat(18);
+
 const scale = (input, decimalPlaces) => {
     const scalePow = bnum(decimalPlaces);
     const scaleMul = bnum(10).pow(scalePow);
@@ -211,6 +213,7 @@ function checkArgsAndGetPeriodParams() {
 
 module.exports = {
     bnum,
+    stringBnum,
     getConfig,
     scale,
     writeData,
