@@ -2,12 +2,12 @@ const ethers = require('ethers');
 const BigNumber = require('bignumber.js');
 const cliProgress = require('cli-progress');
 const fs = require('fs');
-const { argv } = require('yargs');
 
-const config = require('./config');
 const utils = require('./utils');
 const poolAbi = require('./abi/BPool.json');
 const tokenAbi = require('./abi/BToken.json');
+
+const config = utils.getConfig();
 
 const provider = new ethers.providers.WebSocketProvider(config.node);
 
@@ -56,9 +56,12 @@ function getRatioFactor(tokens, weights) {
     return ratioFactor;
 }
 
-const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams(
-    argv
-);
+const {
+    PERIOD,
+    START_BLOCK,
+    END_BLOCK,
+    SKIP_BLOCK,
+} = utils.checkArgsAndGetPeriodParams();
 const ANT_PER_PERIOD = config.antPerPeriod;
 const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
@@ -397,7 +400,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     });
 
     for (i = END_BLOCK; i > START_BLOCK; i -= BLOCKS_PER_SNAPSHOT) {
-        if (argv.skipBlock && i >= argv.skipBlock) {
+        if (SKIP_BLOCK && i >= SKIP_BLOCK) {
             blockProgress.increment(BLOCKS_PER_SNAPSHOT);
             continue;
         }
