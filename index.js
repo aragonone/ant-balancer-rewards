@@ -417,4 +417,6 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     }
 
     blockProgress.stop();
+
+    process.exit(0);
 })();
