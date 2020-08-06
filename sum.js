@@ -1,7 +1,8 @@
 const fs = require('fs');
 const utils = require('./utils');
 const BigNumber = require('bignumber.js');
-const { argv } = require('yargs');
+
+const config = utils.getConfig();
 
 BigNumber.config({
     EXPONENTIAL_AT: [-100, 100],
@@ -13,9 +14,7 @@ function bnum(val) {
     return new BigNumber(val.toString());
 }
 
-const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams(
-    argv
-);
+const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams();
 const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
 (async function () {
