@@ -10,10 +10,6 @@ BigNumber.config({
     DECIMAL_PLACES: 18,
 });
 
-function bnum(val) {
-    return new BigNumber(val.toString());
-}
-
 const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams();
 const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
@@ -21,7 +17,7 @@ const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
     let userTotals = {};
     let sortedUserTotal = {};
 
-    let antTotal = bnum(0);
+    let antTotal = utils.bnum(0);
 
     try {
         // Get all files in report directory
@@ -31,10 +27,11 @@ const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
             const report = JSON.parse(jsonString)[1];
 
             Object.keys(report).forEach((user) => {
-                antTotal = antTotal.plus(bnum(report[user]));
+                antTotal = antTotal.plus(utils.bnum(report[user]));
                 if (userTotals[user]) {
-                    userTotals[user] = bnum(userTotals[user])
-                        .plus(bnum(report[user]))
+                    userTotals[user] = utils
+                        .bnum(userTotals[user])
+                        .plus(utils.bnum(report[user]))
                         .toString();
                 } else {
                     userTotals[user] = report[user];
@@ -53,8 +50,9 @@ const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
             if (redirects[user]) {
                 let newAddress = redirects[user];
                 if (userTotals[newAddress]) {
-                    userTotals[newAddress] = bnum(userTotals[newAddress])
-                        .plus(bnum(userTotals[user]))
+                    userTotals[newAddress] = utils
+                        .bnum(userTotals[newAddress])
+                        .plus(utils.bnum(userTotals[user]))
                         .toString();
                 } else {
                     userTotals[newAddress] = userTotals[user];
