@@ -19,10 +19,14 @@ const MARKET_API_URL =
 
 const getConfig = () => config;
 
+function bnum(val) {
+    return new BigNumber(val.toString());
+}
+
 const scale = (input, decimalPlaces) => {
-    const scalePow = new BigNumber(decimalPlaces);
-    const scaleMul = new BigNumber(10).pow(scalePow);
-    return new BigNumber(input.toString()).times(scaleMul);
+    const scalePow = bnum(decimalPlaces);
+    const scaleMul = bnum(10).pow(scalePow);
+    return bnum(input).times(scaleMul);
 };
 
 const writeData = (data, path) => {
@@ -205,6 +209,7 @@ function checkArgsAndGetPeriodParams() {
 }
 
 module.exports = {
+    bnum,
     getConfig,
     scale,
     writeData,
