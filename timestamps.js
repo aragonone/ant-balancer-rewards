@@ -18,4 +18,6 @@ const { START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams();
             ).toUTCString()}`
         );
     }
+
+    process.exit(0);
 })();

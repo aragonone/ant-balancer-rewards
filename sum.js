@@ -72,5 +72,8 @@ const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
         utils.writeData(sortedUserTotal, `${PERIOD}/_totals`);
     } catch (e) {
         console.error('Error reading reports', e);
+        process.exit(1);
     }
+
+    process.exit(0);
 })();
