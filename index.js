@@ -17,20 +17,16 @@ BigNumber.config({
     DECIMAL_PLACES: 18,
 });
 
-function bnum(val) {
-    return new BigNumber(val.toString());
-}
-
 function getFeeFactor(feePercentage) {
     return Math.exp(-Math.pow(feePercentage * 0.25, 2));
 }
 
 function getRatioFactor(tokens, weights) {
-    let ratioFactorSum = bnum(0);
-    let pairWeightSum = bnum(0);
+    let ratioFactorSum = utils.bnum(0);
+    let pairWeightSum = utils.bnum(0);
     let n = weights.length;
     for (j = 0; j < n; j++) {
-        if (!weights[j].eq(bnum(0))) {
+        if (!weights[j].eq(utils.bnum(0))) {
             for (k = j + 1; k < n; k++) {
                 let pairWeight = weights[j].times(weights[k]);
                 let normalizedWeight1 = weights[j].div(
@@ -40,7 +36,8 @@ function getRatioFactor(tokens, weights) {
                     weights[j].plus(weights[k])
                 );
                 ratioFactorSum = ratioFactorSum.plus(
-                    bnum(4)
+                    utils
+                        .bnum(4)
                         .times(normalizedWeight1)
                         .times(normalizedWeight2)
                         .times(pairWeight)
@@ -66,11 +63,11 @@ const ANT_PER_PERIOD = config.antPerPeriod;
 const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
 const ANT_PER_SNAPSHOT = ANT_PER_PERIOD.div(
-    bnum(Math.ceil((END_BLOCK - START_BLOCK) / BLOCKS_PER_SNAPSHOT))
+    utils.bnum(Math.ceil((END_BLOCK - START_BLOCK) / BLOCKS_PER_SNAPSHOT))
 ); // Ceiling because it includes end block
 
 async function getRewardsAtBlock(i, pools, prices, poolProgress) {
-    let totalBalancerLiquidity = bnum(0);
+    let totalBalancerLiquidity = utils.bnum(0);
 
     let block = await provider.getBlock(i);
 
@@ -121,9 +118,9 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             continue;
         }
 
-        let poolMarketCap = bnum(0);
-        let originalPoolMarketCapFactor = bnum(0);
-        let eligibleTotalWeight = bnum(0);
+        let poolMarketCap = utils.bnum(0);
+        let originalPoolMarketCapFactor = utils.bnum(0);
+        let eligibleTotalWeight = utils.bnum(0);
         let poolRatios = [];
 
         for (const t of currentTokens) {
@@ -153,7 +150,9 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             })[1];
 
             let tokenBalance = utils.scale(tokenBalanceWei, -tokenDecimals);
-            let tokenMarketCap = tokenBalance.times(bnum(closestPrice)).dp(18);
+            let tokenMarketCap = tokenBalance
+                .times(utils.bnum(closestPrice))
+                .dp(18);
 
             if (poolData.tokens) {
                 let obj = {
@@ -183,7 +182,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
 
         let poolFee = await bPool.getSwapFee({ blockTag: i });
         poolFee = utils.scale(poolFee, -16); // -16 = -18 * 100 since it's in percentage terms
-        let feeFactor = bnum(getFeeFactor(poolFee));
+        let feeFactor = utils.bnum(getFeeFactor(poolFee));
 
         originalPoolMarketCapFactor = feeFactor
             .times(ratioFactor)
@@ -200,9 +199,9 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
                 .div(eligibleTotalWeight)
                 .times(originalPoolMarketCapFactor);
             if (tokenTotalMarketCaps[r.token]) {
-                tokenTotalMarketCaps[r.token] = bnum(
-                    tokenTotalMarketCaps[r.token]
-                ).plus(tokenMarketCapWithCap);
+                tokenTotalMarketCaps[r.token] = utils
+                    .bnum(tokenTotalMarketCaps[r.token])
+                    .plus(tokenMarketCapWithCap);
             } else {
                 tokenTotalMarketCaps[r.token] = tokenMarketCapWithCap;
             }
@@ -214,20 +213,20 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     }
 
     for (const pool of allPoolData) {
-        let finalPoolMarketCap = bnum(0);
-        let finalPoolMarketCapFactor = bnum(0);
+        let finalPoolMarketCap = utils.bnum(0);
+        let finalPoolMarketCapFactor = utils.bnum(0);
 
         for (const t of pool.tokens) {
             let adjustedTokenMarketCap;
             if (
                 !config.uncappedTokens.includes(t.token) &&
-                bnum(tokenTotalMarketCaps[t.token]).isGreaterThan(
-                    bnum(10000000)
-                )
+                utils
+                    .bnum(tokenTotalMarketCaps[t.token])
+                    .isGreaterThan(utils.bnum(10000000))
             ) {
-                let tokenMarketCapFactor = bnum(10000000).div(
-                    tokenTotalMarketCaps[t.token]
-                );
+                let tokenMarketCapFactor = utils
+                    .bnum(10000000)
+                    .div(tokenTotalMarketCaps[t.token]);
                 adjustedTokenMarketCap = t.origMarketCap
                     .times(tokenMarketCapFactor)
                     .dp(18);
@@ -253,7 +252,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         let bptSupplyWei = await bPool.totalSupply({ blockTag: i });
         let bptSupply = utils.scale(bptSupplyWei, -18);
 
-        if (bptSupply.eq(bnum(0))) {
+        if (bptSupply.eq(utils.bnum(0))) {
             // Private pool
             if (userPools[pool.controller]) {
                 userPools[pool.controller].push({
@@ -277,9 +276,8 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
 
             // Add this pool liquidity to total user liquidity
             if (userLiquidity[pool.controller]) {
-                userLiquidity[pool.controller] = bnum(
-                    userLiquidity[pool.controller]
-                )
+                userLiquidity[pool.controller] = utils
+                    .bnum(userLiquidity[pool.controller])
                     .plus(finalPoolMarketCapFactor)
                     .toString();
             } else {
@@ -327,7 +325,8 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
 
                 // Add this pool liquidity to total user liquidity
                 if (userLiquidity[holder]) {
-                    userLiquidity[holder] = bnum(userLiquidity[holder])
+                    userLiquidity[holder] = utils
+                        .bnum(userLiquidity[holder])
                         .plus(userPoolValueFactor)
                         .toString();
                 } else {
@@ -342,7 +341,8 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     // Final iteration across all users to calculate their ANT tokens for this block
     let userAntReceived = {};
     for (const user in userLiquidity) {
-        userAntReceived[user] = bnum(userLiquidity[user])
+        userAntReceived[user] = utils
+            .bnum(userLiquidity[user])
             .times(ANT_PER_SNAPSHOT)
             .div(totalBalancerLiquidity);
     }
