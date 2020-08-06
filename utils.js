@@ -4,8 +4,10 @@ const cliProgress = require('cli-progress');
 const fetch = require('isomorphic-fetch');
 const BigNumber = require('bignumber.js');
 const ethers = require('ethers');
+const { argv } = require('yargs');
 
-const config = require('./config');
+let configFile = argv.config ? argv.config : './config';
+const config = require(configFile);
 
 const provider = new ethers.providers.WebSocketProvider(config.node);
 
@@ -14,6 +16,8 @@ const SUBGRAPH_URL =
     'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer';
 const MARKET_API_URL =
     process.env.MARKET_API_URL || 'https://api.coingecko.com/api/v3';
+
+const getConfig = () => config;
 
 const scale = (input, decimalPlaces) => {
     const scalePow = new BigNumber(decimalPlaces);
@@ -174,7 +178,7 @@ async function fetchTokenPrices(allTokens, startTime, endTime, priceProgress) {
     return prices;
 }
 
-function checkArgsAndGetPeriodParams(argv) {
+function checkArgsAndGetPeriodParams() {
     if (!argv.period) {
         console.error(`Usage: node ${argv['$0']} --period 1`);
         process.exit();
@@ -182,7 +186,7 @@ function checkArgsAndGetPeriodParams(argv) {
 
     const PERIOD = argv.period;
 
-    if (PERIOD >= config.periodBlockDelimiters) {
+    if (PERIOD >= config.periodBlockDelimiters.length) {
         console.error(
             'Period too big. Adjust config file to set block delimiters for the desired period'
         );
@@ -196,11 +200,13 @@ function checkArgsAndGetPeriodParams(argv) {
 
     const START_BLOCK = config.periodBlockDelimiters[PERIOD - 1]; // Closest block to reference time at beginning of week
     const END_BLOCK = config.periodBlockDelimiters[PERIOD]; // Closest block to reference time at end of week
+    const SKIP_BLOCK = argv.skipBlock;
 
-    return { PERIOD, START_BLOCK, END_BLOCK };
+    return { PERIOD, START_BLOCK, END_BLOCK, SKIP_BLOCK };
 }
 
 module.exports = {
+    getConfig,
     scale,
     writeData,
     fetchAllPools,
