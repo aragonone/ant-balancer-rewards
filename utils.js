@@ -22,7 +22,7 @@ const getConfig = () => config;
 const scale = (input, decimalPlaces) => {
     const scalePow = new BigNumber(decimalPlaces);
     const scaleMul = new BigNumber(10).pow(scalePow);
-    return new BigNumber(input).times(scaleMul);
+    return new BigNumber(input.toString()).times(scaleMul);
 };
 
 const writeData = (data, path) => {
