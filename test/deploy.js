@@ -19,10 +19,12 @@ const { abi: tokenAbi } = require('@aragon/apps-shared-minime/abi/MiniMeToken');
 
 const ZERO_ADDRESS = '0x' + '0'.repeat(40);
 
-const ANT_WEIGHT = utils.stringBnum('80');
-const WETH_WEIGHT = utils.stringBnum('20');
+const ANT_WEIGHT = utils.stringBnum('40');
+const WETH_WEIGHT = utils.stringBnum('10');
 const ANT_BALANCE = utils.stringBnum('1000');
 const WETH_BALANCE = utils.stringBnum('100');
+
+const gasLimitOptions = { gasLimit: 10e6 };
 
 // Mnemonic:      myth like bonus scare over problem client lizard pioneer submit female collect
 const privateKeys = [
@@ -40,6 +42,20 @@ const privateKeys = [
 const accounts = privateKeys.map((key) => new ethers.Wallet(key, provider));
 const owner = accounts[0];
 
+const checkTransaction = async (tx, name) => {
+    const receipt = await provider.getTransactionReceipt(tx.hash);
+    if (!receipt.status) {
+        console.log('gas', receipt.gasUsed.toString());
+        console.error(`Transaction for ${name} failed!`);
+        process.exit(1);
+    }
+};
+
+const logStats = async (poolContract) => {
+    console.log('block', (await provider.getBlockNumber()).toString());
+    console.log('total supply', (await poolContract.totalSupply()).toString());
+};
+
 const deployToken = async (name, decimals, symbol) => {
     let tokenFactory = new ethers.ContractFactory(
         tokenAbi,
@@ -56,20 +72,24 @@ const deployToken = async (name, decimals, symbol) => {
         true
     );
 
-    console.log('token', tokenContract.address);
-    console.log('token tx', tokenContract.deployTransaction.hash);
+    console.log(`token ${symbol}`, tokenContract.address);
+    //console.log('token tx', tokenContract.deployTransaction.hash);
 
     await tokenContract.deployed();
 
     return tokenContract;
 };
 
-const mintTokens = async (token) => {
-    const TOKENS_MINTED = utils.stringBnum('100');
-    for (let i = 1; i < accounts.length; i++) {
-        await token.generateTokens(accounts[i].address, TOKENS_MINTED, {
-            gasLimit: 10e6,
-        });
+const mintAndApproveTokens = async (token, pool) => {
+    const TOKENS_MINTED = utils.stringBnum('1000000');
+    for (let i = 0; i < accounts.length; i++) {
+        await token.generateTokens(
+            accounts[i].address,
+            TOKENS_MINTED,
+            gasLimitOptions
+        );
+        const tokenUser = token.connect(accounts[i]);
+        await tokenUser.approve(pool.address, TOKENS_MINTED, gasLimitOptions);
     }
 };
 
@@ -79,27 +99,53 @@ const mintTokens = async (token) => {
     let poolContract = await poolFactory.deploy();
 
     console.log('pool', poolContract.address);
-    console.log('pool tx', poolContract.deployTransaction.hash);
+    //console.log('pool tx', poolContract.deployTransaction.hash);
 
     // The contract is NOT deployed yet; we must wait until it is mined
     await poolContract.deployed();
 
+    logStats(poolContract);
+
     // ANT
     const ant = await deployToken('Aragon Network Token', 18, 'ANT');
-    await poolContract.bind(ant.address, ANT_BALANCE, ANT_WEIGHT, {
-        gasLimit: 10e6,
-    });
-    await mintTokens(ant);
+    await mintAndApproveTokens(ant, poolContract);
+    const antBindTx = await poolContract.bind(
+        ant.address,
+        ANT_BALANCE,
+        ANT_WEIGHT,
+        gasLimitOptions
+    );
+    await checkTransaction(antBindTx, 'ant binding');
+
+    logStats(poolContract);
 
     // WETH
     const weth = await deployToken('Wrapped Ether', 18, 'WETH');
-    await poolContract.bind(weth.address, WETH_BALANCE, WETH_WEIGHT, {
-        gasLimit: 10e6,
-    });
-    await mintTokens(weth);
+    await mintAndApproveTokens(weth, poolContract);
+    const wethBindTx = await poolContract.bind(
+        weth.address,
+        WETH_BALANCE,
+        WETH_WEIGHT,
+        gasLimitOptions
+    );
+    await checkTransaction(wethBindTx, 'ant binding');
+
+    logStats(poolContract);
 
     // finalize BPool
-    await poolContract.finalize({ gasLimit: 10e6 });
+    await poolContract.finalize(gasLimitOptions);
+
+    logStats(poolContract);
+
+    const poolUser1 = await poolContract.connect(accounts[1]);
+    const join1Tx = await poolUser1.joinPool(
+        utils.stringBnum('100'),
+        [utils.stringBnum('10'), utils.stringBnum('1')],
+        gasLimitOptions
+    );
+    await checkTransaction(join1Tx, 'user 1 joining');
+
+    logStats(poolContract);
 
     process.exit(0);
 })();

@@ -33,3 +33,23 @@ After all reports are generated, `sum.js` will create a final tally of user addr
 ## ANT Redirections (TODO)
 
 In case smart contracts which cannot receive ANT tokens are specified, owners of those smart contracts can choose to redirect ANT tokens to a new address. In order to submit a redirection request, submit a pull request to update `redirect.json` using `"fromAddress" : "toAddress"` along with some sort of ownership proof. Please reach out to the Aragon team if you need assistance.
+
+## Testing
+
+Spin up a ganache node with:
+
+```
+ganache-cli -h 0.0.0.0 -i 15 --gasLimit 10000000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --db test/ganache
+```
+
+TODO
+
+### Deploying
+
+All the data needed for the tests is contained in the ganache snapshot in `test/db`, but if you want to re-deploy, you can do it by resetting it with:
+
+```
+rm -Rf test/db;
+ganache-cli -h 0.0.0.0 -i 15 --gasLimit 10000000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --db test/ganache
+node test/deploy.js --config ./test/config_local.js
+```
