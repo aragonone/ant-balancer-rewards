@@ -58,6 +58,7 @@ const {
     START_BLOCK,
     END_BLOCK,
     SKIP_BLOCK,
+    OUTPUT_FOLDER,
 } = utils.checkArgsAndGetPeriodParams();
 const ANT_PER_PERIOD = config.antPerPeriod;
 const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
@@ -360,19 +361,21 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         cliProgress.Presets.shades_classic
     );
 
-    !fs.existsSync(`./reports/${PERIOD}/`) &&
-        fs.mkdirSync(`./reports/${PERIOD}/`);
+    !fs.existsSync(`./${OUTPUT_FOLDER}/${PERIOD}/`) &&
+        fs.mkdirSync(`./${OUTPUT_FOLDER}/${PERIOD}/`, { recursive: true });
 
     let startBlockTimestamp = (await provider.getBlock(START_BLOCK)).timestamp;
     let endBlockTimestamp = (await provider.getBlock(END_BLOCK)).timestamp;
 
     let pools = await utils.fetchAllPools(END_BLOCK);
-    utils.writeData(pools, `/${PERIOD}/_pools`);
+    utils.writeData(pools, `/${OUTPUT_FOLDER}/${PERIOD}/_pools`);
 
     let prices = {};
 
-    if (fs.existsSync(`./reports/${PERIOD}/_prices.json`)) {
-        const jsonString = fs.readFileSync(`./reports/${PERIOD}/_prices.json`);
+    if (fs.existsSync(`./${OUTPUT_FOLDER}/${PERIOD}/_prices.json`)) {
+        const jsonString = fs.readFileSync(
+            `./${OUTPUT_FOLDER}/${PERIOD}/_prices.json`
+        );
         prices = JSON.parse(jsonString);
     } else {
         const whitelist = config.whitelistTokens;
@@ -388,7 +391,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             priceProgress
         );
 
-        let path = `/${PERIOD}/_prices`;
+        let path = `/${OUTPUT_FOLDER}/${PERIOD}/_prices`;
         utils.writeData(prices, path);
     }
 
@@ -411,7 +414,7 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             prices,
             poolProgress
         );
-        let path = `/${PERIOD}/${i}`;
+        let path = `/${OUTPUT_FOLDER}/${PERIOD}/${i}`;
         utils.writeData(blockRewards, path);
         blockProgress.increment(BLOCKS_PER_SNAPSHOT);
     }

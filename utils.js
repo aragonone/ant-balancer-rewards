@@ -6,7 +6,7 @@ const BigNumber = require('bignumber.js');
 const ethers = require('ethers');
 const { argv } = require('yargs');
 
-let configFile = argv.config ? argv.config : './config';
+const configFile = argv.config ? argv.config : './config';
 const config = require(configFile);
 
 const provider = new ethers.providers.WebSocketProvider(config.node);
@@ -33,10 +33,7 @@ const scale = (input, decimalPlaces) => {
 
 const writeData = (data, path) => {
     try {
-        fs.writeFileSync(
-            `./reports/${path}.json`,
-            JSON.stringify(data, null, 4)
-        );
+        fs.writeFileSync(`./${path}.json`, JSON.stringify(data, null, 4));
     } catch (err) {
         console.error(err);
     }
@@ -208,7 +205,9 @@ function checkArgsAndGetPeriodParams() {
     const END_BLOCK = config.periodBlockDelimiters[PERIOD]; // Closest block to reference time at end of week
     const SKIP_BLOCK = argv.skipBlock;
 
-    return { PERIOD, START_BLOCK, END_BLOCK, SKIP_BLOCK };
+    const OUTPUT_FOLDER = argv.output ? argv.output : 'reports';
+
+    return { PERIOD, START_BLOCK, END_BLOCK, SKIP_BLOCK, OUTPUT_FOLDER };
 }
 
 module.exports = {

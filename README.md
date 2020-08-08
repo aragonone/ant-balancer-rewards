@@ -15,13 +15,13 @@ An archive node is needed to run the scripts because historical balance snapshot
 ## Usage
 
 ```
-node index.js --period 1 [--config ./test/config_mainnet.js]
+node index.js --period 1 [--config ./test/config_mainnet.js] [--output reports]
 ```
 
 This will run run all historical calculations by block. Using an infura endpoint this may take upwards of TODO hours. For a local archive node, the sync time is roughly TODO minutes. Progress bars with estimates are shown during the sync. Reports will be saved in the folder for the given week specified
 
 ```
-node sum.js --period 1 [--config ./test/config_mainnet.js]
+node sum.js --period 1 [--config ./test/config_mainnet.js] [--output reports]
 ```
 
 After all reports are generated, `sum.js` will create a final tally of user address to ANT received. This is stored in the report week folder at `_totals.json`
@@ -42,7 +42,12 @@ Spin up a ganache node with:
 ganache-cli -h 0.0.0.0 -i 15 --gasLimit 10000000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --db test/ganache
 ```
 
-TODO
+TODO:
+
+```
+node index.js --period 1 --config ./test/config_local.js --output test/reports
+node sum.js --period 1 --config ./test/config_local.js --output test/reports
+```
 
 ### Deploying
 
