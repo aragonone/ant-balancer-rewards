@@ -10,7 +10,12 @@ BigNumber.config({
     DECIMAL_PLACES: 18,
 });
 
-const { PERIOD, START_BLOCK, END_BLOCK } = utils.checkArgsAndGetPeriodParams();
+const {
+    PERIOD,
+    START_BLOCK,
+    END_BLOCK,
+    OUTPUT_FOLDER,
+} = utils.checkArgsAndGetPeriodParams();
 const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
 
 (async function () {
@@ -23,7 +28,9 @@ const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
         // Get all files in report directory
 
         for (i = END_BLOCK; i > START_BLOCK; i -= BLOCKS_PER_SNAPSHOT) {
-            const jsonString = fs.readFileSync(`./reports/${PERIOD}/${i}.json`);
+            const jsonString = fs.readFileSync(
+                `./${OUTPUT_FOLDER}/${PERIOD}/${i}.json`
+            );
             const report = JSON.parse(jsonString)[1];
 
             Object.keys(report).forEach((user) => {
@@ -67,7 +74,7 @@ const BLOCKS_PER_SNAPSHOT = config.blocksPerSnapshot;
                 sortedUserTotal[key] = val;
             });
         console.log(`Total ANT distributed ${antTotal.toString()}`);
-        utils.writeData(sortedUserTotal, `${PERIOD}/_totals`);
+        utils.writeData(sortedUserTotal, `${OUTPUT_FOLDER}/${PERIOD}/_totals`);
     } catch (e) {
         console.error('Error reading reports', e);
         process.exit(1);
