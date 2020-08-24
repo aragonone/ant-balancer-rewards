@@ -1,6 +1,4 @@
 const ethers = require('ethers');
-const BigNumber = require('bignumber.js');
-
 const utils = require('../utils');
 
 const config = utils.getConfig();
@@ -19,10 +17,15 @@ const { abi: tokenAbi } = require('@aragon/apps-shared-minime/abi/MiniMeToken');
 
 const ZERO_ADDRESS = '0x' + '0'.repeat(40);
 
+const INIT_POOL_SUPPLY = utils.bnum(utils.stringBnum('100'));
 const ANT_WEIGHT = utils.stringBnum('40');
 const WETH_WEIGHT = utils.stringBnum('10');
-const ANT_BALANCE = utils.stringBnum('1000');
-const WETH_BALANCE = utils.stringBnum('100');
+const ANT_TO_WETH_FACTOR = 8;
+const ANT_BALANCE = INIT_POOL_SUPPLY.times(
+    utils.bnum(ANT_TO_WETH_FACTOR)
+).toString();
+const WETH_BALANCE = INIT_POOL_SUPPLY.toString();
+const TOKENS_MINTED = utils.stringBnum('1000000'); // 1M
 
 const gasLimitOptions = { gasLimit: 10e6 };
 
@@ -81,7 +84,6 @@ const deployToken = async (name, decimals, symbol) => {
 };
 
 const mintAndApproveTokens = async (token, pool) => {
-    const TOKENS_MINTED = utils.stringBnum('1000000');
     for (let i = 0; i < accounts.length; i++) {
         await token.generateTokens(
             accounts[i].address,
@@ -90,6 +92,29 @@ const mintAndApproveTokens = async (token, pool) => {
         );
         const tokenUser = token.connect(accounts[i]);
         await tokenUser.approve(pool.address, TOKENS_MINTED, gasLimitOptions);
+    }
+};
+
+const userJoin = async (poolContract, user, amountOut) => {
+    console.log(`user ${user.address} join`);
+    const poolUser = await poolContract.connect(user);
+    const join1Tx = await poolUser.joinPool(
+        utils.stringBnum(amountOut),
+        [
+            utils.stringBnum(amountOut * 100),
+            utils.stringBnum(amountOut * ANT_TO_WETH_FACTOR * 100),
+        ],
+        gasLimitOptions
+    );
+    await checkTransaction(join1Tx, 'user joining');
+
+    await logStats(poolContract);
+};
+
+const forwardBlocks = async (token, n) => {
+    for (let i = 0; i < n; i++) {
+        // dummy tx to force new blocks
+        await token.generateTokens(accounts[0].address, '1', gasLimitOptions);
     }
 };
 
@@ -104,7 +129,7 @@ const mintAndApproveTokens = async (token, pool) => {
     // The contract is NOT deployed yet; we must wait until it is mined
     await poolContract.deployed();
 
-    logStats(poolContract);
+    await logStats(poolContract);
 
     // ANT
     const ant = await deployToken('Aragon Network Token', 18, 'ANT');
@@ -117,7 +142,7 @@ const mintAndApproveTokens = async (token, pool) => {
     );
     await checkTransaction(antBindTx, 'ant binding');
 
-    logStats(poolContract);
+    await logStats(poolContract);
 
     // WETH
     const weth = await deployToken('Wrapped Ether', 18, 'WETH');
@@ -130,22 +155,36 @@ const mintAndApproveTokens = async (token, pool) => {
     );
     await checkTransaction(wethBindTx, 'ant binding');
 
-    logStats(poolContract);
+    await logStats(poolContract);
 
     // finalize BPool
+    console.log('finalize pool');
     await poolContract.finalize(gasLimitOptions);
 
-    logStats(poolContract);
+    await logStats(poolContract);
 
-    const poolUser1 = await poolContract.connect(accounts[1]);
-    const join1Tx = await poolUser1.joinPool(
-        utils.stringBnum('100'),
-        [utils.stringBnum('10'), utils.stringBnum('1')],
-        gasLimitOptions
-    );
-    await checkTransaction(join1Tx, 'user 1 joining');
+    await userJoin(poolContract, accounts[1], 1);
 
-    logStats(poolContract);
+    await forwardBlocks(ant, config.blocksPerSnapshot * 2);
+
+    await userJoin(poolContract, accounts[2], 1);
+
+    await forwardBlocks(ant, config.blocksPerSnapshot * 20);
+
+    await userJoin(poolContract, accounts[3], 2);
+
+    await forwardBlocks(ant, config.blocksPerSnapshot * 40);
+
+    await userJoin(poolContract, accounts[4], 4);
+
+    await forwardBlocks(ant, config.blocksPerSnapshot * 50);
+
+    await userJoin(poolContract, accounts[5], 10);
+
+    // make sure to finish last period
+    await forwardBlocks(ant, 100);
+
+    await logStats(poolContract);
 
     process.exit(0);
 })();

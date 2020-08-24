@@ -36,20 +36,35 @@ In case smart contracts which cannot receive ANT tokens are specified, owners of
 
 ## Testing
 
+### Locally
+
 Spin up a ganache node with:
 
 ```
 ganache-cli -h 0.0.0.0 -i 15 --gasLimit 10000000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --db test/ganache
 ```
 
-TODO:
+And then run the tests. For only one period you can do:
 
 ```
 node index.js --period 1 --config ./test/config_local.js --output test/reports
 node sum.js --period 1 --config ./test/config_local.js --output test/reports
 ```
 
-### Deploying
+Or if you want to run several periods you can do something like:
+
+```
+for i in `seq 1 5`; do echo $i; \
+  node index.js --period $i --config ./test/config_local.js --output test/reports_local; \
+  node sum.js --period $i --config ./test/config_local.js --output test/reports_local; \
+done;
+```
+
+Then compare the values in `test/reports_local` folder with the values in the spreadsheet `test/local_results.ods`.
+
+If you want to tweak the tests, change the values in `config_local.json` file. You’ll probably have to re-deploy the pool (see next section).
+
+#### Deploying
 
 All the data needed for the tests is contained in the ganache snapshot in `test/db`, but if you want to re-deploy, you can do it by resetting it with:
 
@@ -58,3 +73,14 @@ rm -Rf test/db;
 ganache-cli -h 0.0.0.0 -i 15 --gasLimit 10000000 --deterministic --mnemonic "myth like bonus scare over problem client lizard pioneer submit female collect" --db test/ganache
 node test/deploy.js --config ./test/config_local.js
 ```
+
+### Mainnet
+
+You can also run tests on mainnet without having to modify main config file nor results with:
+
+```
+node index.js --period 1 --config ./test/config_mainnet.js --output test/reports
+node sum.js --period 1 --config ./test/config_mainnet.js --output test/reports
+```
+
+Tweak first you `test/config_mainnet.js` file and check the results in `test/reports` afterwards.

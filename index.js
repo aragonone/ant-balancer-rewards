@@ -380,8 +380,16 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
     let startBlockTimestamp = (await provider.getBlock(START_BLOCK)).timestamp;
     let endBlockTimestamp = (await provider.getBlock(END_BLOCK)).timestamp;
 
-    let pools = await utils.fetchAllPools(END_BLOCK);
-    utils.writeData(pools, `/${OUTPUT_FOLDER}/${PERIOD}/_pools`);
+    let pools = [];
+    if (fs.existsSync(`./${OUTPUT_FOLDER}/${PERIOD}/_pools.json`)) {
+        const jsonString = fs.readFileSync(
+            `./${OUTPUT_FOLDER}/${PERIOD}/_pools.json`
+        );
+        pools = JSON.parse(jsonString);
+    } else {
+        pools = await utils.fetchAllPools(END_BLOCK);
+        utils.writeData(pools, `/${OUTPUT_FOLDER}/${PERIOD}/_pools`);
+    }
 
     let prices = {};
 

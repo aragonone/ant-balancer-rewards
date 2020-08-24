@@ -8,7 +8,7 @@ module.exports = {
         10619580
     ],
     blocksPerSnapshot: 10,
-    antPerPeriod: new BigNumber(12500), // ~50k per month
+    antPerPeriod: new BigNumber(6250), // ~50k per month
     whitelistTokens: [
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH
         '0x960b236A07cf122663c4303350609A66A7B288C0', // ANT
