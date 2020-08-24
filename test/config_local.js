@@ -2,17 +2,24 @@ const BigNumber = require('bignumber.js');
 
 module.exports = {
     node: 'http://localhost:8545',
-    pools: [''],
-    periodBlockDelimiters: [0, 0],
-    blocksPerSnapshot: 1,
-    antPerPeriod: new BigNumber(12500), // ~50k per month
+    pools: ['0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab'],
+    periodBlockDelimiters: [
+        45,
+        145,
+        245,
+        345,
+        445,
+        545,
+    ],
+    blocksPerSnapshot: 4,
+    antPerPeriod: new BigNumber(6250), // 25k total
     whitelistTokens: [
-        '', // WETH
-        '', // ANT
+        '0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec', // WETH
+        '0x5b1869D9A4C187F2EAa108f3062412ecf0526b24', // ANT
     ],
     uncappedTokens: [
-        '', // WETH
-        '', // ANT
+        '0x26b4AFb60d6C903165150C6F0AA14F8016bE4aec', // WETH
+        '0x5b1869D9A4C187F2EAa108f3062412ecf0526b24', // ANT
     ],
     blacklistAddresses: [
         '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1', // accounts[0]
