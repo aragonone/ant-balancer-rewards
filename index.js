@@ -299,7 +299,11 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
             }
 
             for (const holder of pool.shareHolders) {
-                if (config.blacklistAddresses.map(a => a.toLowerCase()).includes(holder.toLowerCase())) {
+                if (
+                    config.blacklistAddresses
+                        .map((a) => a.toLowerCase())
+                        .includes(holder.toLowerCase())
+                ) {
                     continue;
                 }
 
