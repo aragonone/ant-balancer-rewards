@@ -26,5 +26,8 @@ module.exports = {
         '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599', // WBTC
         '0xba100000625a3754423978a60c9317c58a424e3D', // BAL
         '0x960b236A07cf122663c4303350609A66A7B288C0', // ANT
+    ],
+    blacklistAddresses: [
+        '0xcafE1A77e84698c83CA8931F54A755176eF75f2C', // Aragon Association
     ]
 };
