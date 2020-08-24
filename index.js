@@ -289,7 +289,20 @@ async function getRewardsAtBlock(i, pools, prices, poolProgress) {
         } else {
             // Shared pool
 
+            // first reduce total supply corresponding to blacklisted addresses
+            for (const holder of config.blacklistAddresses) {
+                let userBalanceWei = await bPool.balanceOf(holder, {
+                    blockTag: i,
+                });
+                let userBalance = utils.scale(userBalanceWei, -18);
+                bptSupply = bptSupply.minus(userBalance);
+            }
+
             for (const holder of pool.shareHolders) {
+                if (config.blacklistAddresses.map(a => a.toLowerCase()).includes(holder.toLowerCase())) {
+                    continue;
+                }
+
                 let userBalanceWei = await bPool.balanceOf(holder, {
                     blockTag: i,
                 });

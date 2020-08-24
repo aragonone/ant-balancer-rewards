@@ -17,4 +17,7 @@ module.exports = {
         '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', // WETH
         '0x960b236A07cf122663c4303350609A66A7B288C0', // ANT
     ],
+    blacklistAddresses: [
+        '0xcafE1A77e84698c83CA8931F54A755176eF75f2C', // Aragon Association
+    ],
 };
