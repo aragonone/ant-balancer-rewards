@@ -29,5 +29,6 @@ module.exports = {
     ],
     blacklistAddresses: [
         '0xcafE1A77e84698c83CA8931F54A755176eF75f2C', // Aragon Association
+        '0xfb633F47A84a1450EE0413f2C32dC1772CcAea3e', // AA Budget DAO Agent
     ]
 };
