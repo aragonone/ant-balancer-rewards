@@ -1,6 +1,6 @@
-<h1 align=center><code>ANT Mining</code></h1>
+<h1 align=center><code>ANT Liquidity Rewards (Balancer)</code></h1>
 
-Set of scripts to calculate ANT liquidity mining distributions
+Set of scripts to calculate ANT liquidity rewards distributions. See [announcement blogpost](https://aragon.org/blog/ant-liquidity-rewards-now-on-balancer).
 
 ## Historical Runs
 
@@ -28,7 +28,7 @@ After all reports are generated, `sum.js` will create a final tally of user addr
 
 ## Distributions (TODO)
 
-50,000 ANT will be distributed directly to addresses after the rewards program is over. Due to block gas limits, the tx's to batch transfer ANT will need to be split up across blocks. In order to prevent favoring certain accounts, the block hash of the `endBlock` will be the starting point and addresses will be ordered alphabetically for distributions.
+25,000 ANT will be distributed directly to addresses after the rewards program is over. Due to block gas limits, the tx's to batch transfer ANT will need to be split up across blocks. In order to prevent favoring certain accounts, the block hash of the `endBlock` will be the starting point and addresses will be ordered alphabetically for distributions.
 
 ## ANT Redirections (TODO)
 
