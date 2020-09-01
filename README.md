@@ -6,6 +6,8 @@ Set of scripts to calculate ANT liquidity rewards distributions. See [announceme
 
 | Period | Start Block | End Block |
 | :----- | ----------: | --------: |
+| Week 1 | 10730260    | 10775960  |
+| Week 2 | 10775960    |           |
 
 
 ## Requirements

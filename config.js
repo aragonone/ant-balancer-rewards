@@ -3,14 +3,9 @@ const BigNumber = require('bignumber.js');
 module.exports = {
     node: 'https://mainnet.eth.aragon.network/ws',
     pools: ['0x2cf9106faf2c5c8713035d40df655fb1b9b0f9b9'],
-    periodBlockDelimiters: [ // TODO: set real blocks
-        10599000,
-        10599240,
-        10599480,
-        10599720,
-        10599960,
-        10600200,
-        10600440,
+    periodBlockDelimiters: [
+        10730260,
+        10775960,
     ],
     blocksPerSnapshot: 256,
     antPerPeriod: new BigNumber(6250), // ~50k per month
