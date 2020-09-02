@@ -4,6 +4,8 @@ Set of scripts to calculate ANT liquidity rewards distributions. See [announceme
 
 ## Historical Runs
 
+See results in [this repo](https://github.com/aragonone/ant-balancer-rewards-results).
+
 | Period | Start Block | End Block |
 | :----- | ----------: | --------: |
 | Week 1 | 10730260    | 10775960  |
