@@ -8,6 +8,7 @@ module.exports = {
     periodBlockDelimiters: [
         10730260,
         10775960,
+        10821677,
     ],
     blocksPerSnapshot: 256,
     antPerPeriod: new BigNumber(6250), // ~50k per month

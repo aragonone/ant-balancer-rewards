@@ -9,7 +9,8 @@ See results in [this repo](https://github.com/aragonone/ant-balancer-rewards-res
 | Period | Start Block | End Block |
 | :----- | ----------: | --------: |
 | Week 1 | 10730260    | 10775960  |
-| Week 2 | 10775960    |           |
+| Week 2 | 10775960    | 10821677  |
+| Week 3 | 10821677    |           |
 
 
 ## Requirements
