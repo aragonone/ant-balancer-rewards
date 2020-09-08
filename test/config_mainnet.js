@@ -1,6 +1,7 @@
 const BigNumber = require('bignumber.js');
 
 const ANT_ADDRESS = '0x960b236A07cf122663c4303350609A66A7B288C0';
+const MONICA_CONTRACT_ADDRESS = '0xef44540fDaD5545Cd81FB2E2E55E7cf8175DBDf8';
 
 module.exports = {
     node: 'https://mainnet.eth.aragon.network/ws',
@@ -24,4 +25,5 @@ module.exports = {
         '0xfb633F47A84a1450EE0413f2C32dC1772CcAea3e', // AA Budget DAO Agent
     ],
     ANT_ADDRESS,
+    MONICA_CONTRACT_ADDRESS,
 };

@@ -1,6 +1,7 @@
 const BigNumber = require('bignumber.js');
 
 const ANT_ADDRESS = '0x5b1869D9A4C187F2EAa108f3062412ecf0526b24';
+const MONICA_CONTRACT_ADDRESS = ''; // TODO
 
 module.exports = {
     node: 'http://localhost:8545',
@@ -27,4 +28,5 @@ module.exports = {
         '0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1', // accounts[0]
     ],
     ANT_ADDRESS,
+    MONICA_CONTRACT_ADDRESS,
 };
